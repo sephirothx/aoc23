@@ -14,6 +14,10 @@ pub fn gcd(a: i64, b: i64) -> i64 {
     }
 }
 
+pub fn gcd_vec(numbers: Vec<i64>) -> i64 {
+    numbers.iter().fold(numbers[0], |acc, n| gcd(acc, *n))
+}
+
 pub fn lcm(a: i64, b: i64) -> i64 {
     a * b / gcd(a, b)
 }
@@ -31,6 +35,12 @@ mod tests {
         assert_eq!(1, gcd(7, 8));
         assert_eq!(7, gcd(28, 49));
         assert_eq!(13, gcd(13, 39));
+    }
+
+    #[test]
+    fn test_gcd_vec() {
+        let v = vec![8, 20, 48, 12];
+        assert_eq!(4, gcd_vec(v));
     }
 
     #[test]

@@ -2,13 +2,18 @@
 
 mod days;
 mod input;
-use days::day6::{self, INPUT2};
+mod math;
+use std::str::FromStr;
+
+use days::day8::{Input, *};
+use input::read_from_file;
 
 fn main() {
+    let input = Input::from_str(&read_from_file(8)).unwrap();
     use std::time::Instant;
     let now = Instant::now();
     {
-        println!("{}", day6::part1_2(INPUT2));
+        println!("{}", part2(input));
     }
     let elapsed = now.elapsed();
     println!("Elapsed: {:.2?}", elapsed);

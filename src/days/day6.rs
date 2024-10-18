@@ -1,5 +1,8 @@
 type Input<'a> = &'a [(i64, i64)];
 
+pub const INPUT1: &[(i64, i64)] = &[(56, 334), (71, 1135), (79, 1350), (99, 2430)];
+pub const INPUT2: &[(i64, i64)] = &[(56717999, 334113513502430)];
+
 pub fn part1_2(input: Input) -> i64 {
     input
         .iter()

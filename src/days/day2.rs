@@ -23,17 +23,14 @@ pub fn part2(input: String) -> i32 {
     for line in input.lines() {
         let mut max_color_values = HashMap::new();
         let (_, rounds) = line.split_once(": ").unwrap();
-        let entries: Vec<_> = rounds
+        rounds
             .split("; ")
             .flat_map(|s| s.split(", "))
-            .map(|s| {
+            .for_each(|s| {
                 let (n, c) = s.split_once(" ").unwrap();
-                (n.parse::<i32>().unwrap(), c)
-            })
-            .collect();
-        for (n, c) in entries {
-            max_color_values.entry(c).and_modify(|m| *m = max(*m, n)).or_insert(n);
-        }
+                let n = n.parse().unwrap();
+                max_color_values.entry(c).and_modify(|m| *m = max(*m, n)).or_insert(n);
+            });
         solution += max_color_values.values().product::<i32>();
     }
     solution

@@ -12,8 +12,13 @@ pub fn part1(input: String) -> i32 {
                 let (n, c) = s.split_once(" ").unwrap();
                 (n.parse::<i32>().unwrap(), c)
             })
-            .all(|(n, color)| matches!((n, color), (0..=12, "red") | (0..=13, "green") | (0..=14, "blue")));
-        solution += if is_valid {id} else {0};
+            .all(|(n, color)| {
+                matches!(
+                    (n, color),
+                    (0..=12, "red") | (0..=13, "green") | (0..=14, "blue")
+                )
+            });
+        solution += if is_valid { id } else { 0 };
     }
     solution
 }
@@ -29,7 +34,10 @@ pub fn part2(input: String) -> i32 {
             .for_each(|s| {
                 let (n, c) = s.split_once(" ").unwrap();
                 let n = n.parse().unwrap();
-                max_color_values.entry(c).and_modify(|m| *m = max(*m, n)).or_insert(n);
+                max_color_values
+                    .entry(c)
+                    .and_modify(|m| *m = max(*m, n))
+                    .or_insert(n);
             });
         solution += max_color_values.values().product::<i32>();
     }

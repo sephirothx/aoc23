@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 struct Game {
     id: i32,
-    rounds: Vec<(i32,i32,i32)>,
+    rounds: Vec<(i32, i32, i32)>,
 }
 
 impl FromStr for Game {
@@ -11,40 +11,50 @@ impl FromStr for Game {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let (id, rounds) = s.split_once(": ").unwrap();
         let id = id.split_once(" ").unwrap().1.parse().unwrap();
-        let rounds = rounds.split("; ")
+        let rounds = rounds
+            .split("; ")
             .map(|round| {
                 let mut cubes = (0, 0, 0);
-                round.split(", ")
-                    .for_each(|cube| {
-                        let (n, color) = cube.split_once(" ").unwrap();
-                        let n = n.parse::<i32>().unwrap();
-                        match color {
-                            "red" => cubes.0 = n,
-                            "green" => cubes.1 = n,
-                            "blue" => cubes.2 = n,
-                            _ => (),
-                        }
-                    });
+                round.split(", ").for_each(|cube| {
+                    let (n, color) = cube.split_once(" ").unwrap();
+                    let n = n.parse::<i32>().unwrap();
+                    match color {
+                        "red" => cubes.0 = n,
+                        "green" => cubes.1 = n,
+                        "blue" => cubes.2 = n,
+                        _ => (),
+                    }
+                });
                 cubes
             })
             .collect();
-        Ok(Self{id, rounds})
+        Ok(Self { id, rounds })
     }
 }
 
 pub fn part1_v1(input: String) -> i32 {
-    input.lines()
+    input
+        .lines()
         .map(|line| Game::from_str(line).unwrap())
-        .filter(|game| game.rounds.iter().all(|(r,g,b)| *r <= 12 && *g <= 13 && *b <= 14))
+        .filter(|game| {
+            game.rounds
+                .iter()
+                .all(|(r, g, b)| *r <= 12 && *g <= 13 && *b <= 14)
+        })
         .map(|game| game.id)
         .sum()
 }
 
 pub fn part1_v2(input: String) -> i32 {
-    input.lines()
+    input
+        .lines()
         .filter_map(|line| {
             let game = Game::from_str(line).unwrap();
-            if game.rounds.iter().all(|(r,g,b)| *r <= 12 && *g <= 13 && *b <= 14) {
+            if game
+                .rounds
+                .iter()
+                .all(|(r, g, b)| *r <= 12 && *g <= 13 && *b <= 14)
+            {
                 Some(game.id)
             } else {
                 None
@@ -54,11 +64,16 @@ pub fn part1_v2(input: String) -> i32 {
 }
 
 pub fn part2(input: String) -> i32 {
-    input.lines()
+    input
+        .lines()
         .map(|line| {
             let game = Game::from_str(line).unwrap();
-            let max_colors = game.rounds.iter()
-                .fold((0, 0, 0), |(max_r, max_g, max_b), &(r,g,b)| (max_r.max(r), max_g.max(g), max_b.max(b)));
+            let max_colors = game
+                .rounds
+                .iter()
+                .fold((0, 0, 0), |(max_r, max_g, max_b), &(r, g, b)| {
+                    (max_r.max(r), max_g.max(g), max_b.max(b))
+                });
             max_colors.0 * max_colors.1 * max_colors.2
         })
         .sum()

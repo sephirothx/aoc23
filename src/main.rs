@@ -1,13 +1,14 @@
-use std::fs;
+#![allow(dead_code)]
+
 mod days;
-use days::day2;
+mod input;
+use days::day6;
 
 fn main() {
     use std::time::Instant;
     let now = Instant::now();
     {
-        let input = fs::read_to_string("./input/2.txt").unwrap();
-        println!("{}", day2::part2(input));
+        println!("{}", day6::part1_2(&[(56717999, 334113513502430)]));
     }
     let elapsed = now.elapsed();
     println!("Elapsed: {:.2?}", elapsed);

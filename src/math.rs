@@ -15,7 +15,10 @@ pub fn gcd(a: i64, b: i64) -> i64 {
 }
 
 pub fn gcd_vec(numbers: Vec<i64>) -> i64 {
-    numbers.into_iter().reduce(|a, b| gcd(a, b)).expect("gcd calculation panicked")
+    numbers
+        .into_iter()
+        .reduce(|a, b| gcd(a, b))
+        .expect("gcd calculation panicked")
 }
 
 pub fn lcm(a: i64, b: i64) -> i64 {
@@ -23,7 +26,10 @@ pub fn lcm(a: i64, b: i64) -> i64 {
 }
 
 pub fn lcm_vec(numbers: Vec<i64>) -> i64 {
-    numbers.into_iter().reduce(|a, b| lcm(a, b)).expect("lcm calculation panicked")
+    numbers
+        .into_iter()
+        .reduce(|a, b| lcm(a, b))
+        .expect("lcm calculation panicked")
 }
 
 #[cfg(test)]

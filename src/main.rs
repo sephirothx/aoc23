@@ -3,13 +3,14 @@
 mod days;
 mod input;
 mod math;
-use std::str::FromStr;
+mod geometry;
 
-use days::day9::{Input, *};
+use std::str::FromStr;
+use days::day10::{Input, *};
 use input::read_from_file;
 
 fn main() {
-    let input = Input::from_str(&read_from_file(9)).unwrap();
+    let input = Input::from_str(&read_from_file(10)).unwrap();
     use std::time::Instant;
     let now = Instant::now();
     {

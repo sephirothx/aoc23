@@ -1,4 +1,5 @@
 use std::{collections::{HashMap, HashSet, LinkedList}, str::FromStr, string::ParseError};
+use crate::geometry::*;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Input {
@@ -6,12 +7,10 @@ pub struct Input {
     size: (i32, i32),
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
-enum Direction {
-    Right,
-    Left,
-    Down,
-    Up,
+#[derive(Debug, PartialEq, Eq)]
+enum Action {
+    Move(Direction),
+    Split(Direction, Direction),
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
@@ -48,8 +47,14 @@ impl FromStr for Input {
     }
 }
 
+impl Beam {
+    fn next(&self, dir: Direction) -> Beam {
+        Beam { pos: (self.pos.0 + dir.0, self.pos.1 + dir.1), dir }
+    }
+}
+
 pub fn part1(input: Input) -> usize {
-    get_energized_tiles(&input, Beam {pos: (0,0), dir: Direction::Right})
+    get_energized_tiles(&input, Beam {pos: (0,0), dir: RIGHT})
 }
 
 pub fn part2(input: Input) -> usize {
@@ -63,12 +68,12 @@ pub fn part2(input: Input) -> usize {
 fn get_all_starting_beams(size: (i32, i32)) -> Vec<Beam> {
     let mut v = Vec::new();
     for i in 0..size.0 {
-        v.push(Beam {pos: (i, 0), dir: Direction::Right});
-        v.push(Beam {pos: (i, size.1 - 1), dir: Direction::Left});
+        v.push(Beam {pos: (i, 0), dir: RIGHT});
+        v.push(Beam {pos: (i, size.1 - 1), dir: LEFT});
     }
     for i in 0..size.1 {
-        v.push(Beam {pos: (0, i), dir: Direction::Down});
-        v.push(Beam {pos: (size.0 - 1, i), dir: Direction::Up});
+        v.push(Beam {pos: (0, i), dir: DOWN});
+        v.push(Beam {pos: (size.0 - 1, i), dir: UP});
     }
     v
 }
@@ -86,43 +91,34 @@ fn get_energized_tiles(input: &Input, starting_beam: Beam) -> usize {
         set_beam.insert(b);
         set_pos.insert(b.pos);
         let c = input.map.get(&b.pos).unwrap_or(&b'.');
-        process(&b, *c).into_iter().for_each(|b| stack.push_back(b));
+        match process_direction(b.dir, *c) {
+            Action::Move(d) => stack.push_back(b.next(d)),
+            Action::Split(d1, d2) => {
+                stack.push_back(b.next(d1));
+                stack.push_back(b.next(d2));
+            },
+        }
     }
 
     set_pos.len()
 }
 
-fn process(b: &Beam, c: u8) -> Vec<Beam> {
-    let mut v = Vec::new();
-    match (&b.dir, c) {
-        (Direction::Right, b'-' | b'.') => v.push(Beam {pos: (b.pos.0, b.pos.1 + 1), dir: Direction::Right}),
-        (Direction::Right, b'/') => v.push(Beam {pos: (b.pos.0 - 1, b.pos.1), dir: Direction::Up}),
-        (Direction::Right, b'\\') => v.push(Beam {pos: (b.pos.0 + 1, b.pos.1), dir: Direction::Down}),
+fn process_direction(dir: Direction, c: u8) -> Action {
+    match (dir, c) {
+        (_, b'.') |
+        (RIGHT | LEFT, b'-') |
+        (UP | DOWN, b'|') => Action::Move(dir),
 
-        (Direction::Left, b'-' | b'.') => v.push(Beam {pos: (b.pos.0, b.pos.1 - 1), dir: Direction::Left}),
-        (Direction::Left, b'/') => v.push(Beam {pos: (b.pos.0 + 1, b.pos.1), dir: Direction::Down}),
-        (Direction::Left, b'\\') => v.push(Beam {pos: (b.pos.0 - 1, b.pos.1), dir: Direction::Up}),
+        (RIGHT | LEFT, b'|') => Action::Split(UP, DOWN),
+        (UP | DOWN, b'-') => Action::Split(LEFT, RIGHT),
 
-        (Direction::Right | Direction::Left, b'|') => {
-            v.push(Beam {pos: (b.pos.0 - 1, b.pos.1), dir: Direction::Up});
-            v.push(Beam {pos: (b.pos.0 + 1, b.pos.1), dir: Direction::Down});
-        },
+        (RIGHT, b'/') | (LEFT, b'\\') => Action::Move(UP),
+        (RIGHT, b'\\') | (LEFT, b'/') => Action::Move(DOWN),
+        (UP, b'\\') | (DOWN, b'/') => Action::Move(LEFT),
+        (UP, b'/') | (DOWN, b'\\') => Action::Move(RIGHT),
 
-        (Direction::Down, b'|' | b'.') => v.push(Beam {pos: (b.pos.0 + 1, b.pos.1), dir: Direction::Down}),
-        (Direction::Down, b'/') => v.push(Beam {pos: (b.pos.0, b.pos.1 - 1), dir: Direction::Left}),
-        (Direction::Down, b'\\') => v.push(Beam {pos: (b.pos.0, b.pos.1 + 1), dir: Direction::Right}),
-
-        (Direction::Up, b'|' | b'.') => v.push(Beam {pos: (b.pos.0 - 1, b.pos.1), dir: Direction::Up}),
-        (Direction::Up, b'/') => v.push(Beam {pos: (b.pos.0, b.pos.1 + 1), dir: Direction::Right}),
-        (Direction::Up, b'\\') => v.push(Beam {pos: (b.pos.0, b.pos.1 - 1), dir: Direction::Left}),
-
-        (Direction::Down | Direction::Up, b'-') => {
-            v.push(Beam {pos: (b.pos.0, b.pos.1 + 1), dir: Direction::Right});
-            v.push(Beam {pos: (b.pos.0, b.pos.1 - 1), dir: Direction::Left});
-        },
-        _ => unreachable!()
+        _ => unreachable!(),
     }
-    v
 }
 
 #[cfg(test)]
@@ -150,19 +146,11 @@ mod tests {
     }
 
     #[test]
-    fn test_process() {
-        assert_eq!(
-            vec![Beam {pos: (1, 0), dir: Direction::Down}],
-            process(&Beam {pos: (0, 0),  dir: Direction::Right}, b'\\'));
-        assert_eq!(
-            vec![Beam {pos: (0, 1), dir: Direction::Right}],
-            process(&Beam {pos: (0, 0),  dir: Direction::Right}, b'-'));
-        assert_eq!(
-            vec![Beam {pos: (-1, 0), dir: Direction::Up}],
-            process(&Beam {pos: (0, 0),  dir: Direction::Right}, b'/'));
-        assert_eq!(
-            vec![Beam {pos: (-1, 0), dir: Direction::Up}, Beam {pos: (1, 0), dir: Direction::Down}],
-            process(&Beam {pos: (0, 0),  dir: Direction::Right}, b'|'));
+    fn test_process_direction() {
+        assert_eq!(Action::Move(DOWN), process_direction(RIGHT, b'\\'));
+        assert_eq!(Action::Move(RIGHT), process_direction(RIGHT, b'-'));
+        assert_eq!(Action::Move(UP), process_direction(RIGHT, b'/'));
+        assert_eq!(Action::Split(UP, DOWN), process_direction(RIGHT, b'|'));
     }
 
     #[test]

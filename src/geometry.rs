@@ -14,6 +14,20 @@ pub const LEFT: Direction = Direction(0, -1);
 pub const DOWN: Direction = Direction(1, 0);
 pub const UP: Direction = Direction(-1, 0);
 
+impl Direction {
+    pub fn reverse(&self) -> Self {
+        Self(self.0 * -1, self.1 * -1)
+    }
+
+    pub fn turn_right(&self) -> Self {
+        Self(self.1, self.0 * -1)
+    }
+
+    pub fn turn_left(&self) -> Self {
+        Self(self.1 * -1, self.0)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -22,5 +36,29 @@ mod tests {
     fn test_manhattan_distance() {
         assert_eq!(25, manhattan_distance_i64((-2, 8), (10, -5)));
         assert_eq!(11, manhattan_distance_usize((2, 8), (10, 5)));
+    }
+
+    #[test]
+    fn test_direction_reverse() {
+        assert_eq!(RIGHT, LEFT.reverse());
+        assert_eq!(LEFT, RIGHT.reverse());
+        assert_eq!(DOWN, UP.reverse());
+        assert_eq!(UP, DOWN.reverse());
+    }
+
+    #[test]
+    fn test_direction_turn_right() {
+        assert_eq!(DOWN, RIGHT.turn_right());
+        assert_eq!(LEFT, DOWN.turn_right());
+        assert_eq!(UP, LEFT.turn_right());
+        assert_eq!(RIGHT, UP.turn_right());
+    }
+
+    #[test]
+    fn test_direction_turn_left() {
+        assert_eq!(RIGHT, DOWN.turn_left());
+        assert_eq!(DOWN, LEFT.turn_left());
+        assert_eq!(LEFT, UP.turn_left());
+        assert_eq!(UP, RIGHT.turn_left());
     }
 }

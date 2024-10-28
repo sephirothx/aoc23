@@ -121,13 +121,15 @@ pub fn part2(input: Input) -> i64 {
 mod tests {
     use super::*;
 
-    const INPUT: &str = "7-F7-
+    const INPUT: &str = "\
+7-F7-
 .FJ|7
 SJLL7
 |F--J
 LJ.LJ";
 
-    const INPUT2: &str = "FF7FSF7F7F7F7F7F---7
+    const INPUT2: &str = "\
+FF7FSF7F7F7F7F7F---7
 L|LJ||||||||||||F--J
 FL-7LJLJ||||||LJL-77
 F--JF--7||LJLJ7F7FJ-

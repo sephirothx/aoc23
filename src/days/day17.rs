@@ -131,7 +131,8 @@ fn get_positions(input: &Input, position: (i32, i32), min: i32, max: i32, direct
 mod tests {
     use super::*;
 
-    const INPUT: &str = "2413432311323
+    const INPUT: &str = "\
+2413432311323
 3215453535623
 3255245654254
 3446585845452
@@ -145,7 +146,8 @@ mod tests {
 2546548887735
 4322674655533";
 
-    const INPUT2: &str = "111111111111
+    const INPUT2: &str = "\
+111111111111
 999999999991
 999999999991
 999999999991

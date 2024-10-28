@@ -1,17 +1,23 @@
-use std::cmp::{max, min};
-
 pub fn gcd(a: i64, b: i64) -> i64 {
-    match ((a, b), (a & 1, b & 1)) {
-        ((x, y), _) if x == y => y,
-        ((0, x), _) | ((x, 0), _) => x,
-        ((x, y), (0, 1)) | ((y, x), (1, 0)) => gcd(x >> 1, y),
-        ((x, y), (0, 0)) => gcd(x >> 1, y >> 1) << 1,
-        ((x, y), (1, 1)) => {
-            let (x, y) = (min(x, y), max(x, y));
-            gcd((y - x) >> 1, x)
-        }
-        _ => unreachable!(),
+    if a == 0 || b == 0 {
+        return a ^ b;
     }
+
+    let mut a = a.abs();
+    let mut b = b.abs();
+
+    let shift = (a | b).trailing_zeros();
+    a >>= a.trailing_zeros();
+
+    while b != 0 {
+        b >>= b.trailing_zeros();
+        if a > b {
+            std::mem::swap(&mut a, &mut b);
+        }
+        b -= a;
+    }
+
+    a << shift
 }
 
 pub fn gcd_vec(numbers: Vec<i64>) -> i64 {
@@ -41,6 +47,8 @@ mod tests {
         assert_eq!(1, gcd(7, 8));
         assert_eq!(7, gcd(28, 49));
         assert_eq!(13, gcd(13, 39));
+        assert_eq!(69, gcd(0, 69));
+        assert_eq!(420, gcd(420, 0));
     }
 
     #[test]

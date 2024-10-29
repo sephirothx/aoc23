@@ -6,6 +6,10 @@ pub fn manhattan_distance_usize(a: (usize, usize), b: (usize, usize)) -> usize {
     a.0.abs_diff(b.0) + a.1.abs_diff(b.1)
 }
 
+pub fn get_neighbors(pos: (i32, i32)) -> impl Iterator<Item = (i32, i32)> {
+    Direction::iter().map(move |dir| (pos.0 + dir.0, pos.1 + dir.1))
+}
+
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub struct Direction(pub i32, pub i32);
 
@@ -25,6 +29,10 @@ impl Direction {
 
     pub fn turn_left(&self) -> Self {
         Self(self.1 * -1, self.0)
+    }
+
+    pub fn iter() -> impl Iterator<Item = Direction> {
+        [RIGHT, LEFT, DOWN, UP].into_iter()
     }
 }
 
@@ -60,5 +68,11 @@ mod tests {
         assert_eq!(DOWN, LEFT.turn_left());
         assert_eq!(LEFT, UP.turn_left());
         assert_eq!(UP, RIGHT.turn_left());
+    }
+
+    #[test]
+    fn test_get_neighbors() {
+        let expected = vec![(5, 6), (5, 4), (6, 5), (4, 5)];
+        assert_eq!(expected, get_neighbors((5, 5)).collect::<Vec<_>>());
     }
 }

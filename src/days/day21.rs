@@ -46,14 +46,21 @@ impl FromStr for Input {
 
 pub fn part1(input: Input, steps: usize) -> usize {
     let mut sets = [HashSet::new(), HashSet::new()];
-    let mut previous_sets = [HashSet::new(), HashSet::new()];
+    let mut new_pos = HashSet::new();
     sets[0].insert(input.start);
+    new_pos.insert(input.start);
     for step in 0..steps {
-        previous_sets[(step+1)%2] = sets[(step+1)%2].clone();
+        println!("{step}");
         let mut s = sets[(step+1)%2].clone();
-        println!("{} - total: {}, diff: {}", step, sets[step%2].len(), sets[step%2].len() - previous_sets[step%2].len());
-        for pos in sets[step%2].difference(&previous_sets[step%2]) {
-            s.extend(get_neighbors(*pos, &input));
+        let np = new_pos.clone();
+        new_pos.clear();
+        for pos in np {
+            for n in get_neighbors(pos, &input) {
+                if !s.contains(&n) {
+                    new_pos.insert(n);
+                }
+                s.insert(n);
+            }
         }
         sets[(step+1)%2] = s;
     }

@@ -6,15 +6,15 @@ mod math;
 mod geometry;
 
 use std::str::FromStr;
-use days::day21::{Input, *};
+use days::day24::{Input, *};
 use input::read_from_file;
 
 fn main() {
-    let input = Input::from_str(&read_from_file(21)).unwrap();
+    let input = Input::from_str(&read_from_file(24)).unwrap();
     use std::time::Instant;
     let now = Instant::now();
     {
-        println!("{}", part1(input, 26501365));
+        println!("{}", part1(input));
     }
     let elapsed = now.elapsed();
     println!("Elapsed: {:.2?}", elapsed);

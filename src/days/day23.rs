@@ -118,26 +118,28 @@ impl FromStr for Input {
 
 pub fn part1(input: Input) -> i32 {
     let graph: HashMap<(i32, i32), Vec<((i32, i32), i32)>> = input.build_graph(false);
-    dfs(&graph, input.start, input.end, &mut Vec::new())
+    find_longest_path(&graph, input.start, input.end, &mut Vec::new()).unwrap()
 }
 
 pub fn part2(input: Input) -> i32 {
     let graph = input.build_graph(true);
-    dfs(&graph, input.start, input.end, &mut Vec::new())
+    find_longest_path(&graph, input.start, input.end, &mut Vec::new()).unwrap()
 }
 
-fn dfs(
+fn find_longest_path(
     adj_list: &HashMap<(i32, i32), Vec<((i32, i32), i32)>>,
     curr: (i32, i32),
     end: (i32, i32),
     visited: &mut Vec<(i32, i32)>
-) -> i32 {
-    if curr == end { return 0; }
-    if visited.contains(&curr) { return i32::MIN; }
+) -> Option<i32> {
+    if curr == end { return Some(0); }
+    if visited.contains(&curr) { return None; }
     visited.push(curr);
-    let mut max = i32::MIN;
+    let mut max = None;
     for &(pos, dist) in &adj_list[&curr] {
-        max = max.max(dist + dfs(adj_list, pos, end, visited));
+        if let Some(path_len) = find_longest_path(adj_list, pos, end, visited) {
+            max = Some(max.unwrap_or(0).max(path_len + dist));
+        }
     }
     visited.pop();
     max

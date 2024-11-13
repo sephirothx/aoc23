@@ -6,11 +6,11 @@ mod math;
 mod geometry;
 
 use std::str::FromStr;
-use days::day5::{Input, *};
+use days::day11::{Input, *};
 use input::read_from_file;
 
 fn main() {
-    let input = Input::from_str(&read_from_file(5)).unwrap();
+    let input = Input::from_str(&read_from_file(11)).unwrap();
     use std::time::Instant;
     let now = Instant::now();
     {

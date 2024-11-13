@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{convert::Infallible, str::FromStr};
 
 #[derive(Debug, PartialEq, Eq)]
 struct Game {
@@ -6,8 +6,13 @@ struct Game {
     rounds: Vec<(i32, i32, i32)>,
 }
 
+#[derive(Debug, PartialEq, Eq)]
+pub struct Input {
+    games: Vec<Game>,
+}
+
 impl FromStr for Game {
-    type Err = Box<dyn std::error::Error>;
+    type Err = Infallible;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let (id, rounds) = s.split_once(": ").unwrap();
@@ -33,50 +38,38 @@ impl FromStr for Game {
     }
 }
 
-pub fn part1_v1(input: String) -> i32 {
-    input
-        .lines()
-        .map(|line| Game::from_str(line).unwrap())
-        .filter(|game| {
+impl FromStr for Input {
+    type Err = Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let games = s
+            .lines()
+            .map(|line| Game::from_str(line).unwrap())
+            .collect();
+        Ok(Self { games })
+    }
+}
+
+pub fn part1(input: Input) -> i32 {
+    input.games
+        .into_iter()
+        .filter_map(|game| {
             game.rounds
                 .iter()
                 .all(|(r, g, b)| *r <= 12 && *g <= 13 && *b <= 14)
-        })
-        .map(|game| game.id)
-        .sum()
-}
-
-pub fn part1_v2(input: String) -> i32 {
-    input
-        .lines()
-        .filter_map(|line| {
-            let game = Game::from_str(line).unwrap();
-            if game
-                .rounds
-                .iter()
-                .all(|(r, g, b)| *r <= 12 && *g <= 13 && *b <= 14)
-            {
-                Some(game.id)
-            } else {
-                None
-            }
+                .then_some(game.id)
         })
         .sum()
 }
 
-pub fn part2(input: String) -> i32 {
-    input
-        .lines()
-        .map(|line| {
-            let game = Game::from_str(line).unwrap();
-            let max_colors = game
-                .rounds
+pub fn part2(input: Input) -> i32 {
+    input.games
+        .into_iter()
+        .map(|game| game.rounds
                 .iter()
-                .fold((0, 0, 0), |(max_r, max_g, max_b), &(r, g, b)| {
-                    (max_r.max(r), max_g.max(g), max_b.max(b))
-                });
-            max_colors.0 * max_colors.1 * max_colors.2
-        })
+                .fold([0, 0, 0], |[max_r, max_g, max_b], &(r, g, b)| [max_r.max(r), max_g.max(g), max_b.max(b)])
+                .into_iter()
+                .product::<i32>())
         .sum()
 }
 
@@ -102,17 +95,12 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
     }
 
     #[test]
-    fn test_part1_from_str() {
-        assert_eq!(8, part1_v1(INPUT.to_owned()));
+    fn test_part1() {
+        assert_eq!(8, part1(Input::from_str(INPUT).unwrap()));
     }
 
     #[test]
-    fn test_part1_filter_map() {
-        assert_eq!(8, part1_v2(INPUT.to_owned()));
-    }
-
-    #[test]
-    fn test_part2_from_str() {
-        assert_eq!(2286, part2(INPUT.to_owned()));
+    fn test_part2() {
+        assert_eq!(2286, part2(Input::from_str(INPUT).unwrap()));
     }
 }

@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, collections::HashSet, str::FromStr, string::ParseError};
+use std::{cmp::Ordering, collections::{HashSet, VecDeque}, str::FromStr, string::ParseError};
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 struct Brick {
@@ -112,10 +112,10 @@ fn compute_fall(input: &Input) -> (Vec<HashSet<usize>>, Vec<HashSet<usize>>) {
 }
 
 fn how_many_would_fall(above: &Vec<HashSet<usize>>, below: &Vec<HashSet<usize>>, brick: usize) -> usize {
-    let mut queue: Vec<usize> = Vec::new();
+    let mut queue = VecDeque::new();
     let mut hs = HashSet::new();
-    queue.push(brick);
-    while let Some(b) = queue.pop() {
+    queue.push_back(brick);
+    while let Some(b) = queue.pop_front() {
         if hs.insert(b) {
             queue.extend(above[b]
                 .iter()
